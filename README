@@ -1,10 +1,17 @@
-********************************************************************************
-*     Tema        : 4 - PC                                                     *
-*     Autor       : Andrei Ursache                                             *
-*     Grupa       : 322 CA                                                     *
-*     Data        : 18.05.2015                                                 *
-********************************************************************************
-    
+
+	----------------------------------------------------------------------------
+	Proiect anul 2, semestrul al doilea, Protocoale de Comunicatie
+	Limbaj ales: C++
+	
+	############################     ATENTIE !!!    ############################
+	Temele sunt verificate pe VMChecker. Nu incercati sa copiati codul, deoarece
+	VMChecker verifica si sursele existente pe GitHub. In plus, fiecare tema va 
+	ajuta foarte mult daca incercati sa o realizati singuri. Asa ca, daca ai
+	ajuns aici pentru a cauta o tema, iti recomand calduros sa inchizi tab-ul cu 
+	GitHub si sa te apuci singur de ea. Spor!
+	----------------------------------------------------------------------------
+
+
 ********************************************************************************
     Aspecte generale:
 
@@ -109,17 +116,6 @@ parametru.
             fisierele sursa.
 
 ********************************************************************************
-    Nota personala:
-    
-        Una din cele mai interesante teme la PC. La inceput parea putin mai 
-    scurta (ca si cod efectiv), dar s-a dovedit pe parcurs a fi destul de
-    mult de implementat. M-a ajutat sa inteleg mai bine cum functioneaza de 
-    fapt un browser web si cum ar trebui parsat un fisier html (in mare, chiar
-    daca programul nu acopera multe cazuri de link-uri si imagini). Am testat
-    programul pe mai multe site-uri web si de fiecare data a descarcat cu succes
-    paginile web si fisiere de tip gif, pdf sau zip.
-        Daca intapinati vreo problema in timpul corectarii, va rog sa ma 
-    contactati: andreiursache94@gmail.com
     
     Andrei Ursache
 
