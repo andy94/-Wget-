@@ -1,0 +1,125 @@
+********************************************************************************
+*     Tema        : 4 - PC                                                     *
+*     Autor       : Andrei Ursache                                             *
+*     Grupa       : 322 CA                                                     *
+*     Data        : 18.05.2015                                                 *
+********************************************************************************
+    
+********************************************************************************
+    Aspecte generale:
+
+    In realizarea temei am folosit socket stream (peste TCP) in C++ si am 
+utilizat laboaratoarele de PC (in special cel de HTTP), precum si notiunile 
+teoretice prezentate in curs.
+    Am folosit protocolul HTTP 1.0 pentru simplitatea transmitelor datelor, iar 
+limbajul folosit este C++.
+    In folderul sursa se afla si un fisier Makefile cu ajutorul caruia se 
+pot compila sursele obtinandu-se executabilul "myclient". Acesta se apeleaza
+respectand specificatiile din enuntul temei.
+    (!) Mentionez ca programul nu va descarca o pagina deja existenta pe disk. 
+In acest mod, daca vrem sa descarcam din nou aceeasi pagina, trebuie mai intai 
+sa stergem rezultatul primei descarcari.
+
+********************************************************************************
+    Ideea generala:
+    
+    Programul realizat indeplineste functii asemanatoare programului wget, doar
+ca intr- maniera mai simpla. El primeste ca argumente in linie de comanda urma-
+toarele optiuni: "./myclient [-r] [-e] [-o <log_file_name>] server_path_file".
+    Optiunile pot fi date in orice ordine, dar trebuie sa respecte formatul
+cerut. La apelul fara nicio optiune, programul va descarca pagina web data ca
+parametru. Aceasta calea catre pagina trebuie sa fie completa, de forma:
+"http://www.cs.stir.ac.uk/~kjt/index.html", deoarece programul nu creeaza o 
+pagina implicita in cazul apelarii fara numele paginii.
+    Pentru optiunea "-o <logfile>" se va creea un fisier de log cu numele dat. 
+Iesirea standard de eroare va fi redirectata in acest fisier si toate erorile
+care pot aparea (pagina nu a fost gasita, pagina mutata etc.) se vor afisa in
+acest fiser.
+    Optiunea "-e" va descarca pe langa pagina/paginile web si linkurile catre
+fisierele cu extensia de doua sau trei caractere.
+    Optiunea "-r" va descarca toate paginile referite de pagina initiala si 
+recursiv pana la nivelul 5. Acest lucru se realizeaza folosind un buffer de
+nivele pentru paginile web.
+    Linkurile respecta forma data in enuntul temei.
+    Daca o pagina web "server/dir1/dir2/pagina1" contine o referinta de tipul
+"/dir1/dir3/pagina2" atunci aceasta pagina va fi luata in calcul deoarece este
+pe acelasi server (chiar daca nu are o cale relativa la pozitia curenta).
+    
+********************************************************************************
+    Structura  si implementare:
+        
+    Programul se imparte in doua fisiere sursa: "myclient.cpp" si "aux.hpp". 
+In primul dintre acestea se gaseste functia main si aici au loc principalele 
+apeluri de functii. In fisierul secundar sunt mai multe functii auxiliare si 
+clase folosite pentru gestionarea mai buna a datelor.
+    
+    Mai intai programul gestioneaza operatiile pe care trebuie sa le ia in
+considerare de la utilizator, dupa care redirecteaza stderr in fisierul 
+dat ca parametru pentru log, daca este nevoie.
+    Se selecteaza numele servereului si folosind functia "gethostbyname" se 
+obtine adresa IP a acestuia. Se formeaza struct sockaddr_in pentru adresa 
+serverului.
+    
+    Obiectele de tip GetFile reprezinta fisiere (sau pagini web) ce trebuie
+descarcate si contin: numele fisierului, numele directorului curent si calea de
+la directorul curent pana la fisier. De exemplu, pentru adresa:
+    "servername/dir1/dir2/filename" avem:
+        nume fisier = filename;
+        nume director curent(de baza) = servername/
+        cale = dir1/dir2/ (poate fi si empty).
+    Pentru a permite descarcarea recursiva, in momentul in care primesc o pagina
+voi selecta de acolo toate link-urile valide catre o alta pagina si le voi
+introduce intr-un buffer, din care urmeaza sa fie downloadate la randul lor.
+In realizarea acestui lucru am creat un buffer de tip GetBuffer care contine 5 
+nivele(5 liste de fisiere) si un nivel curent. Aceasta clasa are cateva metode
+de gestionare a fisierelor. Un fisier poate fi adaugat in buffer doar pe nivelul
+urmator, iar din buffer poate fi scos doar nivelul curent. In acest mod, se 
+vor adauga in buffer progresiv paginile web si fisierele identificate.
+    
+    Pagina initiala cu care este apelat programul se va introduce in buffer si 
+se trece la urmatorul nivel. Cat timp sunt pagini in buffer, se selecteaza 
+nivelul curent. Pentru fiecare pagina de pe acest nivel se apeleaza functia
+"get_file".
+    Aceasta functie mai intai va creea un soket dupa care incearca sa se 
+conecteze la server. Toate mesajele de eroare sunt gestionate folosind 
+perror. Daca a reusit conectarea, atunci se formeaza comanda get in felul
+urmator: "GET %s HTTP/1.0\nHost: %s\nConnection: close\n\n".
+    Dupa send, va primi primul calup de date de la server. Acesta contine 
+header-ul, deci aici va fi verificat codul intors. Daca este unul de succes, 
+atunci se creeaza fisierul corespunzator si se scriu in el cu ajutorul functiei
+write datele imediat de dupa header. Se continua cu primirea restului de date, 
+pana cand conexiunea se intrerupe si se inchide socketul.
+    
+    Daca totul a decurs cum trebuie, cu ajutorul functiei "parse_links" se vor
+afla toate linkurile din pagina respectiva. Apoi, cu functiile "make_pages" si 
+respectiv "make_files" se vor creea obiectele de tip GetFile corespunzatoare.
+Se introduc pe nivelul urmator paginile identificare si se descarca fisierele 
+primite. Folosind functia write, "get_file" functioneaza atat pentru pagini web 
+cat si pentru fisiere.
+        
+    In acest mod, pana cand bufferul ajunge la nivelul 5, paginile gasite vor 
+fi adaugate progresiv in buffer iar fisierele vor fi descarcate imediat dupa 
+pagina curenta. In final se obtine (daca s-a folosit -r si -e) atructura de 
+directoare si fisiere corespunzatoare recursivitatii pe pagina data ca
+parametru.
+    
+********************************************************************************
+
+    (!!!)   Alte detalii referitoare la implementarea temei se gasesc in 
+            fisierele sursa.
+
+********************************************************************************
+    Nota personala:
+    
+        Una din cele mai interesante teme la PC. La inceput parea putin mai 
+    scurta (ca si cod efectiv), dar s-a dovedit pe parcurs a fi destul de
+    mult de implementat. M-a ajutat sa inteleg mai bine cum functioneaza de 
+    fapt un browser web si cum ar trebui parsat un fisier html (in mare, chiar
+    daca programul nu acopera multe cazuri de link-uri si imagini). Am testat
+    programul pe mai multe site-uri web si de fiecare data a descarcat cu succes
+    paginile web si fisiere de tip gif, pdf sau zip.
+        Daca intapinati vreo problema in timpul corectarii, va rog sa ma 
+    contactati: andreiursache94@gmail.com
+    
+    Andrei Ursache
+
